@@ -25,7 +25,7 @@ const assemble=m=>{const o={};COLS.forEach(c=>o[c]=Object.values(m[c]).map(v=>v.
 let emitCb=null;
 window.store={
   sub(cb){
-    if(!db){let v=null;try{v=JSON.parse(localStorage.getItem('mfl-data')||'null')}catch(e){}cb(v);setTimeout(()=>window.dispatchEvent(new Event('mfl-read-err')),0);return()=>{}}
+    if(!db){let v=null;try{v=JSON.parse(localStorage.getItem('mfl-data')||'null')}catch(e){}cb(v);return()=>{}}
     emitCb=cb;let first=true;
     const emit=m=>{const o=assemble(m);emitted.add(o);cb(o)};
     const done=async()=>{
@@ -56,7 +56,7 @@ window.store={
 /* Giriş: tuzlu PBKDF2 özetleri admin/pw (yönetici) ve admin/ref (hakem) belgelerinde saklanır, şifreler hiçbir yere yazılmaz */
 const enc=new TextEncoder(),b64=u=>btoa(String.fromCharCode(...new Uint8Array(u))),unb=x=>Uint8Array.from(atob(x),c=>c.charCodeAt(0));
 async function derive(pw,salt){const k=await crypto.subtle.importKey('raw',enc.encode(pw),'PBKDF2',false,['deriveBits']);return b64(await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:150000,hash:'SHA-256'},k,256))}
-const loadDoc=async n=>{if(!db)return null;try{const s=await db.doc('admin/'+n).get();return s.exists?s.data():null}catch(e){return null}};
+const EMB={pw:{salt:'Bl7IDTR7Al1SoIo+TiVkGw==',hash:'CAMet8qFn6JoLfIGCEEzHpJF2Y4HkaUKlwb9ODZbLmQ='},ref:{salt:'Vh2aVo1RAuDfGsDZVY/LbA==',hash:'uBnPqxUkieOZa84eKicc8Bks23eaPsmiYGWJMvL6lo8='}};const loadDoc=async n=>{if(!db)return EMB[n]||null;try{const s=await db.doc('admin/'+n).get();return s.exists?s.data():null}catch(e){return null}};
 const rd=()=>{try{return JSON.parse(sessionStorage.getItem('mfl-sess')||'{}')}catch(e){return{}}},wr=o=>{try{sessionStorage.setItem('mfl-sess',JSON.stringify(o))}catch(e){}};
 window.MFL_AUTH={
   async status(){const [a,r]=await Promise.all([loadDoc('pw'),loadDoc('ref')]),t=rd();let role='';
@@ -1734,7 +1734,7 @@ function App() {
                 React.createElement("p", { style: { margin: 0, fontSize: 16 } }, n.text))) : React.createElement("div", { className: "card" },
                 React.createElement("p", { className: "emp" }, "Hen\u00FCz bildirim yok.")))),
         about: () => (React.createElement("div", { className: "card pd" },
-            React.createElement("p", { style: { marginTop: 0 } }, "Master Lig, Maltepe Fen Lisesi kapsam\u0131nda 2010 do\u011Fumlular aras\u0131nda oynanan bir hal\u0131 saha ligidir. Tak\u0131mlar sezon boyunca birbirleriyle kar\u015F\u0131la\u015F\u0131r, sonu\u00E7lar ve s\u0131ralama bu sayfada tutulur."),
+            React.createElement("p", { style: { marginTop: 0 } }, "Master Lig, 2010 do\u011Fumlular aras\u0131nda oynanan bir hal\u0131 saha ligidir. Tak\u0131mlar sezon boyunca birbirleriyle kar\u015F\u0131la\u015F\u0131r, sonu\u00E7lar ve s\u0131ralama bu sayfada tutulur."),
             React.createElement("p", null, "Puan durumu canl\u0131d\u0131r: hakem ma\u00E7\u0131 ba\u015Flatt\u0131\u011F\u0131 anda skor, dakika, gol, asist ve kartlar sayfay\u0131 a\u00E7an herkesin ekran\u0131nda an\u0131nda g\u00FCncellenir. Puan tablosu ve s\u0131ralama da skorla birlikte de\u011Fi\u015Fir."),
             React.createElement("p", null, "Lig s\u00FCrecinin yan\u0131nda okullararas\u0131 bir futbol turnuvas\u0131 d\u00FCzenlenecek. Turnuvan\u0131n finalistleri de bu sayfadan takip edilecek."),
             React.createElement("p", null, "Master Champions League: Lig puan durumunda ilk 4 s\u0131ray\u0131 alan tak\u0131mlar Master Champions League\u2019e kat\u0131l\u0131r. 1. ile 4., 2. ile 3. yar\u0131 finalde e\u015Fle\u015Fir, kazananlar finalde, kaybedenler 3.l\u00FCk ma\u00E7\u0131nda oynar. Bu ma\u00E7lar fikst\u00FCrde mor renkle g\u00F6sterilir ve ba\u015Flad\u0131\u011F\u0131nda men\u00FCde ayr\u0131 bir Champions League sekmesi a\u00E7\u0131l\u0131r."),
